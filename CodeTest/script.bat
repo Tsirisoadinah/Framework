@@ -1,24 +1,30 @@
+@echo off
+setlocal enabledelayedexpansion
+
 REM Définition des variables
-SET APP_NAME=Authentifier
+SET APP_NAME=FrameworkApp
 SET SRC_DIR=src\main\java
 SET WEB_DIR=src\main\webapp
 SET BUILD_DIR=build
 SET LIB_DIR=lib
-SET TOMCAT_WEBAPPS=C:\Program Files\Apache Software Foundation\Tomcat 10.1\webapps
+SET TOMCAT_WEBAPPS=C:\Program Files\Apache Software Foundation\apache-tomcat-10.1.28\webapps
 SET SERVLET_API_JAR=%LIB_DIR%\servlet-api.jar
+SET SPRINT1_JAR=%LIB_DIR%\Sprint1.jar
+SET CLASSPATH=%SERVLET_API_JAR%;%SPRINT1_JAR%
 
 REM Nettoyage et création du répertoire temporaire
 rmdir /S /Q %BUILD_DIR%
 mkdir %BUILD_DIR%\WEB-INF\classes
 
 REM Compilation des fichiers .java
-javac -cp "%SERVLET_API_JAR%" -d "%BUILD_DIR%\WEB-INF\classes" "%SRC_DIR%\*.java"
-if %ERRORLEVEL% NEQ 0 (
-    echo ERREUR : La compilation a echoue !
-    exit /B 1
-) else (
-    echo Compilation reussie !
+for /r "%SRC_DIR%" %%f in (*.java) do (
+    javac -cp "%CLASSPATH%" -d "%BUILD_DIR%\WEB-INF\classes" "%%f"
+    if !ERRORLEVEL! NEQ 0 (
+        echo ERREUR : La compilation de %%f a echoue !
+        exit /B 1
+    )
 )
+echo Compilation reussie !
 
 
 REM Copier les fichiers web
