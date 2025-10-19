@@ -1,14 +1,32 @@
 package servlets;
-import java.io.IOException;
 
-import jakarta.servlet.*;
-import jakarta.servlet.http.*;
+import java.io.IOException;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.RequestDispatcher;
 
 public class FrontServlet extends HttpServlet {
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String url = request.getRequestURL().toString();
-        request.setAttribute("url", url);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/index.jsp");
-        dispatcher.forward(request, response);
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        chercherRessource(req, resp);
+    }
+
+    private void chercherRessource(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        
+        String path = req.getRequestURI().substring(req.getContextPath().length());
+        if ("/".equals(path)) {
+            resp.getWriter().println("/");
+            return;
+        }
+        boolean resourceExists = getServletContext().getResource(path) != null;
+
+        if (resourceExists) {
+            RequestDispatcher defaultDispatcher = getServletContext().getNamedDispatcher("default");
+            defaultDispatcher.forward(req, resp);
+        } else {
+            resp.getWriter().println(path);
+        }
     }
 }
